@@ -6,25 +6,28 @@
 
 #include "Vec3.hpp"
 
-/**
- * A ray represents the mathematical function
- *     P(t) = A + t * b
- */
-class Ray {
-public:
-    Ray() {}
+namespace PathRehnda {
 
-    Ray(const Point3 &origin, const Vec3 &direction) : origin(origin), direction(direction) {};
+    /**
+     * A ray represents the mathematical function
+     *     P(t) = A + t * b
+     */
+    class Ray {
+    public:
+        Ray() {}
 
-    Point3 getOrigin() const { return origin; };
+        Ray(const Point3 &origin, const Vec3 &direction) : origin(origin), direction(direction) {};
 
-    Vec3 getDirection() const { return direction; }
+        Point3 getOrigin() const { return origin; };
 
-    Point3 at(double t) const {
-        return origin + t * direction;
-    }
+        Vec3 getDirection() const { return direction; }
 
-public:
-    Point3 origin;
-    Vec3 direction;
-};
+        Point3 at(double t) const {
+            return origin + t * direction;
+        }
+
+    public:
+        Point3 origin;
+        Vec3 direction;
+    };
+}

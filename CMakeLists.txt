@@ -27,7 +27,7 @@ conan_cmake_run(REQUIRES
 
 set(SOURCE_FILES
         src/main.cpp
-        include/Ray.hpp)
+        src/hittable/Sphere.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
