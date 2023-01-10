@@ -6,6 +6,10 @@
 
 #include "Vec3.hpp"
 
+/**
+ * A ray represents the mathematical function
+ *     P(t) = A + t * b
+ */
 class Ray {
 public:
     Ray() {}
