@@ -1,18 +1,18 @@
 #include <iostream>
 #include <spdlog/spdlog.h>
-#include <optional>
 
 #include "Color.hpp"
 #include "Ray.hpp"
 #include "Vec3.hpp"
 #include "hittable/Sphere.hpp"
+#include "PathRehnda.hpp"
+#include "hittable/HittableList.hpp"
 
 using namespace PathRehnda;
 
-ColorRgb sample_ray(const Ray& ray, const Sphere& sphere) {
-    if (auto hit_result = sphere.hit(ray, 0, 1000)) {
-        Vec3 normal = hit_result.normal;
-        return 0.5 * ColorRgb{normal.x() + 1, normal.y() + 1, normal.z() + 1}; // Color map normal values which are (-1, 1) to (0, 1)
+ColorRgb sample_ray(const Ray& ray, const Hittable& world) {
+    if (auto hit_result = world.hit(ray, 0, infinity)) {
+        return 0.5 * ColorRgb{hit_result.normal + ColorRgb(1, 1, 1)}; // Color map normal values which are (-1, 1) to (0, 1)
     }
     Vec3 unit_direction = unit_vector(ray.direction);
     auto t = 0.5 * (unit_direction.y() + 1.0);
@@ -41,14 +41,16 @@ int main() {
 
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-    Sphere sphere({0, 0, -1}, 0.5);
+    HittableList world;
+    world.add(std::make_shared<Sphere>(Point3{0, 0, -1}, 0.5));
+    world.add(std::make_shared<Sphere>(Point3{0, -100.5, -1}, 100));
     for (int j = image_height - 1; j >= 0; --j) {
         std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
         for (int i = 0; i < image_width; ++i) {
             auto u = double(i) / (image_width - 1);
             auto v = double(j) / (image_height - 1);
             Ray ray(origin, lower_left_corner + u * horizontal + v * vertical - origin);
-            ColorRgb pixel_color = sample_ray(ray, sphere);
+            ColorRgb pixel_color = sample_ray(ray, world);
             write_color(std::cout, pixel_color);
         }
     }

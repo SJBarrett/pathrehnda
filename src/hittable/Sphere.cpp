@@ -39,11 +39,20 @@ namespace PathRehnda {
         }
 
         auto hit_location = ray.at(root);
+        Vec3 normal = (hit_location - centre) / radius;
+        bool front_face = true;
+        // if the dot product is positive, then the normal is not against the ray, so the hit is inside
+        if (dot(ray.direction, normal) > 0.0) {
+            normal = -normal;
+            front_face = false;
+        }
+
         return {
-            .hit_location = hit_location,
-            .normal = (hit_location - centre) / radius,
-            .t = root,
-            .did_hit = true,
+                .did_hit = true,
+                .hit_location = hit_location,
+                .normal = normal,
+                .t = root,
+                .front_face = front_face,
         };
     }
 } // PathRehnda
