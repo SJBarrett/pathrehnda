@@ -1,4 +1,4 @@
-cmake_minimum_required(3.23)
+cmake_minimum_required(VERSION 3.2)
 set(PROJECT_NAME pathrehdna)
 
 
@@ -28,8 +28,10 @@ conan_cmake_run(REQUIRES
 
 set(SOURCE_FILES
         src/main.cpp
+        src/Camera.cpp
         src/hittable/Sphere.cpp
-        src/hittable/HittableList.cpp)
+        src/hittable/HittableList.cpp
+        )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
