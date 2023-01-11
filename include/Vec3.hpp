@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <iostream>
+#include "RehndaMath.hpp"
 
 namespace PathRehnda {
     class Vec3 {
@@ -60,9 +61,29 @@ namespace PathRehnda {
             return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
         }
 
+    public:
+        // ------------- STATICS -----------------
         static Vec3 zero() {
             return {0, 0, 0};
         }
+
+        static Vec3 random() {
+            return Vec3(random_double(), random_double(), random_double());
+        }
+
+        static Vec3 random(double min, double max) {
+            return Vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+        }
+
+        static Vec3 random_in_unit_sphere() {
+            while (true) {
+                auto candidate = Vec3::random(-1, 1);
+                if (candidate.length_squared() < 1) {
+                    return candidate;
+                }
+            }
+        }
+
 
     public:
         double e[3];
@@ -115,5 +136,9 @@ namespace PathRehnda {
 
     inline Vec3 unit_vector(Vec3 v) {
         return v / v.length();
+    }
+
+    inline Vec3 random_unit_vector() {
+        return unit_vector(Vec3::random_in_unit_sphere());
     }
 }
