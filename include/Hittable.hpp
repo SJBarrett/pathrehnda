@@ -4,10 +4,12 @@
 
 #pragma once
 
+#include <memory>
 #include "Vec3.hpp"
 #include "Ray.hpp"
 
 namespace PathRehnda {
+    class Material;
     /*
      * OPTIMISATION could improve performance by finding the closest hit first, and only then calculate the normal
      */
@@ -15,6 +17,9 @@ namespace PathRehnda {
         bool did_hit = false;
         Point3 hit_location;
         Vec3 normal;
+
+        std::shared_ptr<Material> material;
+
         double t; // From P(t) = A + t * b formula
         bool front_face;
 

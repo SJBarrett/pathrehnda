@@ -51,6 +51,7 @@ namespace PathRehnda {
                 .did_hit = true,
                 .hit_location = hit_location,
                 .normal = normal,
+                .material = material,
                 .t = root,
                 .front_face = front_face,
         };

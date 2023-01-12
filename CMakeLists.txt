@@ -31,7 +31,8 @@ set(SOURCE_FILES
         src/Camera.cpp
         src/hittable/Sphere.cpp
         src/hittable/HittableList.cpp
-        include/materials/Material.cpp include/materials/Material.hpp)
+        src/materials/LambertianMaterial.cpp
+        src/materials/MetalMaterial.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)

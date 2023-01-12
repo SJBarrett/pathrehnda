@@ -61,6 +61,12 @@ namespace PathRehnda {
             return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
         }
 
+        // Return true if the vector is close to zero in all dimensions
+        bool near_zero() const {
+            const auto s = 1e-8;
+            return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
+        }
+
     public:
         // ------------- STATICS -----------------
         static Vec3 zero() {
@@ -140,5 +146,9 @@ namespace PathRehnda {
 
     inline Vec3 random_unit_vector() {
         return unit_vector(Vec3::random_in_unit_sphere());
+    }
+
+    inline Vec3 reflect(const Vec3& v, const Vec3& n) {
+        return v - 2 * dot(v, n) * n;
     }
 }
