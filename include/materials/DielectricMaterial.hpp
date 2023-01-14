@@ -16,5 +16,9 @@ namespace PathRehnda {
 
     public:
         double refractive_index;
+
+    private:
+        // implementation of Schlick's approximation
+        static double reflectance(double cosine, double ref_idx);
     };
 }

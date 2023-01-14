@@ -12,11 +12,28 @@ namespace PathRehnda {
         double refraction_ratio = hit_result.front_face ? (1.0 / refractive_index) : refractive_index;
 
         Vec3 unit_direction = unit_vector(ray_in.direction);
-        Vec3 refracted_direction = refract(unit_direction, hit_result.normal, refraction_ratio);
+
+        double cos_theta = fmin(dot(-unit_direction, hit_result.normal), 1.0);
+        double sin_theta = sqrt(1 - cos_theta * cos_theta);
+
+        bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+        Vec3 scatter_direction;
+        if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double()) {
+            scatter_direction = reflect(unit_direction, hit_result.normal);
+        } else {
+            scatter_direction = refract(unit_direction, hit_result.normal, refraction_ratio);
+        }
+
         Scatter scatter{
-                .scattered_ray = Ray(hit_result.hit_location, refracted_direction),
+                .scattered_ray = Ray(hit_result.hit_location, scatter_direction),
                 .attenuation = attentuation,
         };
         return scatter;
+    }
+
+    double DielectricMaterial::reflectance(double cosine, double ref_idx) {
+        auto r_0 = (1 - ref_idx) / (1 + ref_idx);
+        r_0 = r_0 * r_0;
+        return r_0 + (1 - r_0) * pow((1 - cosine), 5);
     }
 }
