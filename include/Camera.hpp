@@ -10,10 +10,10 @@
 namespace PathRehnda {
     class Camera {
     public:
-        explicit Camera(double aspect_ratio);
+        Camera(Point3 look_from, Point3 look_at, Vec3 up, double vertical_fov_degrees, double aspect_ratio);
 
         [[nodiscard]]
-        Ray get_ray(double u, double v) const;
+        Ray get_ray(double s, double t) const;
 
         [[nodiscard]]
         double get_aspect_ratio() const;
