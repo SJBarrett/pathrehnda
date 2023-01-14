@@ -32,7 +32,7 @@ set(SOURCE_FILES
         src/hittable/Sphere.cpp
         src/hittable/HittableList.cpp
         src/materials/LambertianMaterial.cpp
-        src/materials/MetalMaterial.cpp)
+        src/materials/MetalMaterial.cpp src/materials/DielectricMaterial.cpp include/materials/DielectricMaterial.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)

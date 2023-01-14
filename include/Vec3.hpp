@@ -151,4 +151,11 @@ namespace PathRehnda {
     inline Vec3 reflect(const Vec3& v, const Vec3& n) {
         return v - 2 * dot(v, n) * n;
     }
+
+    inline Vec3 refract(const Vec3& incident_ray, const Vec3& normal, double etai_over_etat) {
+        auto cos_theta = fmin(dot(-incident_ray, normal), 1.0);
+        Vec3 r_out_perp = etai_over_etat * (incident_ray + cos_theta * normal);
+        Vec3 r_our_parallel = -sqrt(fabs(1.0 - r_out_perp.length_squared())) * normal;
+        return r_out_perp + r_our_parallel;
+    }
 }

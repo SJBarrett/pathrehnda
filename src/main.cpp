@@ -11,6 +11,7 @@
 #include "Camera.hpp"
 #include "materials/LambertianMaterial.hpp"
 #include "materials/MetalMaterial.hpp"
+#include "materials/DielectricMaterial.hpp"
 
 using namespace PathRehnda;
 
@@ -65,8 +66,8 @@ int main() {
     HittableList world;
 
     auto material_ground = std::make_shared<LambertianMaterial>(ColorRgb(0.8, 0.8, 0.0));
-    auto material_center = std::make_shared<LambertianMaterial>(ColorRgb(0.7, 0.3, 0.3));
-    auto material_left = std::make_shared<MetalMaterial>(ColorRgb(0.8, 0.8, 0.8), 0.3);
+    auto material_center = std::make_shared<DielectricMaterial>(1.5);
+    auto material_left = std::make_shared<DielectricMaterial>(1.5);
     auto material_right = std::make_shared<MetalMaterial>(ColorRgb(0.8, 0.6, 0.2), 1.0);
 
     world.add(std::make_shared<Sphere>(Point3( 0.0, -100.5, -1.0), 100.0, material_ground));
