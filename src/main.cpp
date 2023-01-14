@@ -62,7 +62,12 @@ int main() {
     // ppm image format header
 
     // world setup
-    Camera camera(Point3(-2, 2, 1), Point3(0, 0, -1), Vec3(0, 1, 0), 40.0, aspect_ratio);
+    Point3 look_from(3, 1, 2);
+    Point3 look_at(0, 0.5, -1);
+    Vec3 up(0, 1, 0);
+    auto dist_to_focus = (look_from - look_at).length();
+    auto aperture = 0.1;
+    Camera camera(look_from, look_at, up, 40.0, aspect_ratio, aperture, dist_to_focus);
     HittableList world;
 
     auto material_ground = std::make_shared<LambertianMaterial>(ColorRgb(0.8, 0.8, 0.0));
