@@ -30,10 +30,12 @@ namespace PathRehnda {
     }
 
 
-    void Sampler::sample_pixels(const Camera& camera, const Hittable& world, ImageBuffer& out_image_buffer, uint32_t samples_per_pixel) {
+    void Sampler::sample_pixels(const Camera& camera, const Hittable& world, ImageBuffer& out_image_buffer, uint32_t samples_per_pixel, bool print_progress) {
         for (uint32_t j = out_image_buffer.image_height - 1; j != (uint32_t) -1; --j) {
             int percentage_complete = (int)((float)(out_image_buffer.image_height - j) / (float)out_image_buffer.image_height * 100);
-            std::cerr << "\rCompletion: " << percentage_complete << '%' << std::flush;
+            if (print_progress) {
+                std::cerr << "\rCompletion: " << percentage_complete << '%' << std::flush;
+            }
             for (uint32_t i = 0; i < out_image_buffer.image_width; ++i) {
                 for (uint32_t s = 0; s < samples_per_pixel; s++) {
                     auto u = (i + random_double()) / (out_image_buffer.image_width - 1);

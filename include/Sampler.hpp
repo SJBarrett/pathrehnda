@@ -15,7 +15,7 @@ namespace PathRehnda {
     public:
         Sampler(uint32_t max_depth);
         ColorRgb sample_ray(const Ray& ray, const Hittable& world, uint32_t depth);
-        void sample_pixels(const Camera& camera, const Hittable& world, ImageBuffer& out_image_buffer, uint32_t samples_per_pixel);
+        void sample_pixels(const Camera& camera, const Hittable& world, ImageBuffer& out_image_buffer, uint32_t samples_per_pixel, bool print_progress = false);
 
     public:
         uint32_t max_depth;

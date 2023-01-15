@@ -34,4 +34,12 @@ namespace PathRehnda {
     double ImageBuffer::perform_gamma_correction(double color_value) const {
         return sqrt(color_value);
     }
+
+    void ImageBuffer::add_buffer(const ImageBuffer &other_buffer) {
+        for (uint32_t x = 0; x < image_width; x++) {
+            for (uint32_t y = 0; y < image_height; y++) {
+                write_color_sample(x, y, other_buffer.color_buffer[x + image_width * y]);
+            }
+        }
+    }
 } // PathRehnda

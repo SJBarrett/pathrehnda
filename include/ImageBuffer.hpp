@@ -14,6 +14,8 @@ namespace PathRehnda {
 
         void write_color_sample(uint32_t x, uint32_t y, ColorRgb color);
 
+        void add_buffer(const ImageBuffer& other_buffer);
+
         [[nodiscard]]
         ColorRgb get_color_sample(uint32_t x, uint32_t y, int num_samples) const;
     public:

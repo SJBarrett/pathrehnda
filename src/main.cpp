@@ -1,8 +1,8 @@
 #include <iostream>
 #include <spdlog/spdlog.h>
 #include <fstream>
+#include <thread>
 
-#include "Ray.hpp"
 #include "Vec3.hpp"
 #include "RehndaMath.hpp"
 #include "materials/Material.hpp"
@@ -68,8 +68,10 @@ int main() {
     const double aspect_ratio = 3.0 / 2.0;
     const int image_width = 480;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 30;
+    const int samples_per_pixel = 12;
     const int max_depth = 10;
+    const unsigned int num_threads = std::jthread::hardware_concurrency();
+    std::cerr << "Using " << num_threads << " threads\n";
 
     // ppm image format header
 
@@ -79,16 +81,38 @@ int main() {
     Vec3 up(0, 1, 0);
     auto dist_to_focus = 10.0;
     auto aperture = 0.1;
-    Camera camera(look_from, look_at, up, 20.0, aspect_ratio, aperture, dist_to_focus);
-    HittableList world = random_scene();
-
-    ImageBuffer image_buffer(image_width, image_height);
+    const Camera camera(look_from, look_at, up, 20.0, aspect_ratio, aperture, dist_to_focus);
+    const HittableList world = random_scene();
     Sampler sampler(max_depth);
-    sampler.sample_pixels(camera, world, image_buffer, samples_per_pixel);
+
+    std::vector<ImageBuffer> image_buffers;
+    for (size_t i = 0; i < num_threads; i++) {
+        image_buffers.emplace_back(image_width, image_height);
+    }
+
+    std::vector<std::jthread> rendering_threads;
+    for (size_t i = 0; i < num_threads - 1; i++) {
+        rendering_threads.emplace_back([&camera, &world, &image_buffers, &sampler, i](){
+            sampler.sample_pixels(camera, world, image_buffers[i + 1], samples_per_pixel);
+        });
+    }
+
+    sampler.sample_pixels(camera, world, image_buffers[0], samples_per_pixel, true);
+    std::cerr << "\nThread 1 done\n";
+
+    for (auto &thread : rendering_threads) {
+        thread.join();
+    }
+    std::cerr << "\nAll threads done\n";
+
+
+    for (size_t i = 1; i < num_threads; i++) {
+        image_buffers[0].add_buffer(image_buffers[i]);
+    }
 
     ImageWriter image_writer;
     std::ofstream output("image.ppm");
-    image_writer.write_image_buffer_to_stream(output, image_buffer, samples_per_pixel);
+    image_writer.write_image_buffer_to_stream(output, image_buffers[0], samples_per_pixel * (int) num_threads);
     std::cerr << "\nDone.\n";
     return 0;
 }
