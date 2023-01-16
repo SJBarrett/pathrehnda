@@ -17,7 +17,7 @@ namespace PathRehnda {
         void add_buffer(const ImageBuffer& other_buffer);
 
         [[nodiscard]]
-        ColorRgb get_color_sample(uint32_t x, uint32_t y, int num_samples) const;
+        ColorRgb get_color_sample(uint32_t x, uint32_t y, uint32_t num_samples) const;
     public:
         std::vector<ColorRgb> color_buffer;
         uint32_t image_width;

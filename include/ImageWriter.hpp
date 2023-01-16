@@ -10,7 +10,7 @@
 namespace PathRehnda {
     class ImageWriter {
     public:
-        void write_image_buffer_to_stream(std::ostream &out, const ImageBuffer& image_buffer, int num_samples);
+        void write_image_buffer_to_stream(std::ostream &out, const ImageBuffer& image_buffer, uint32_t num_samples);
     };
 
 } // PathRehnda

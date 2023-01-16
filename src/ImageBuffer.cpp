@@ -13,7 +13,7 @@ namespace PathRehnda {
         color_buffer[x + image_width * y] += color;
     }
 
-    ColorRgb ImageBuffer::get_color_sample(uint32_t x, uint32_t y, int num_samples) const {
+    ColorRgb ImageBuffer::get_color_sample(uint32_t x, uint32_t y, uint32_t num_samples) const {
         const auto color = color_buffer[x + image_width * y];
         if (color.near_zero()) {
             return ColorRgb::zero();

@@ -24,15 +24,22 @@ conan_cmake_run(REQUIRES
         spdlog/1.10.0
         magic_enum/0.8.0
         namedtype/20190324
+        boost/1.81.0
         BASIC_SETUP BUILD missing BUILD_TYPE Debug)
 
 set(SOURCE_FILES
         src/main.cpp
         src/Camera.cpp
+        src/ImageBuffer.cpp
+        src/ImageWriter.cpp
+        src/Sampler.cpp
+        src/Aggregator.cpp
         src/hittable/Sphere.cpp
         src/hittable/HittableList.cpp
         src/materials/LambertianMaterial.cpp
-        src/materials/MetalMaterial.cpp src/materials/DielectricMaterial.cpp include/materials/DielectricMaterial.hpp src/ImageBuffer.cpp include/ImageBuffer.hpp src/ImageWriter.cpp include/ImageWriter.hpp src/Sampler.cpp include/Sampler.hpp)
+        src/materials/MetalMaterial.cpp
+        src/materials/DielectricMaterial.cpp
+        )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
