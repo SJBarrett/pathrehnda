@@ -2,6 +2,7 @@
 // Created by sjbar on 12/01/2023.
 //
 
+#include <tracy/Tracy.hpp>
 #include "materials/MetalMaterial.hpp"
 
 namespace PathRehnda {
@@ -10,6 +11,7 @@ namespace PathRehnda {
     }
 
     std::optional<Scatter> MetalMaterial::scatter(const Ray &ray_in, const HitResult &hit_result) const {
+        ZoneScopedN("MetalShader");
         Vec3 reflect_dir = reflect(unit_vector(ray_in.direction), hit_result.normal);
         const Scatter scatter{
             .scattered_ray = Ray(hit_result.hit_location, reflect_dir + fuzz * Vec3::random_in_unit_sphere(), ray_in.time),

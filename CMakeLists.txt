@@ -8,6 +8,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++20 -lws
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 
+option( TRACY_ENABLE "" ON)
+add_subdirectory(external/tracy)
+
 if (NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
     message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
     file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.18.1/conan.cmake"
@@ -40,12 +43,14 @@ set(SOURCE_FILES
         src/materials/MetalMaterial.cpp
         src/materials/DielectricMaterial.cpp
         src/hittable/MovingSphere.cpp include/hittable/MovingSphere.hpp)
-
+# Enable tracy profiler
+add_compile_definitions(TRACY_ENABLE) # TODO enable this only for some builds
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(${PROJECT_NAME}
         ${CONAN_LIBS}
+        Tracy::TracyClient
         )
 include_directories(include)
 

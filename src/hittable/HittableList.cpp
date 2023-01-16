@@ -1,7 +1,7 @@
 //
 // Created by sjbar on 10/01/2023.
 //
-
+#include <tracy/Tracy.hpp>
 #include "hittable/HittableList.hpp"
 
 namespace PathRehnda {
@@ -19,6 +19,7 @@ namespace PathRehnda {
     }
 
     HitResult HittableList::hit(const Ray &ray, double t_min, double t_max) const {
+        ZoneScopedN("HittableList::Hit");
         HitResult closest_hit {.did_hit = false, .t = t_max};
 
         for (const auto& object : objects) {

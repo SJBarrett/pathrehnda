@@ -3,6 +3,7 @@
 #include <fstream>
 #include <thread>
 #include <boost/program_options.hpp>
+#include <tracy/Tracy.hpp>
 
 #include "Vec3.hpp"
 #include "RehndaMath.hpp"
@@ -27,9 +28,10 @@ HittableList random_scene() {
 
     auto ground_material = std::make_shared<LambertianMaterial>(ColorRgb(0.5, 0.5, 0.5));
     world.add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, ground_material));
+    const int random_scene_size = 11;
 
-    for (int a = -3; a < 3; a++) {
-        for (int b = -3; b < 3; b++) {
+    for (int a = -random_scene_size; a < random_scene_size; a++) {
+        for (int b = -random_scene_size; b < random_scene_size; b++) {
             auto choose_mat = random_double();
             Point3 centre(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
 
@@ -157,6 +159,7 @@ int main(int argc, char** argv) {
     std::vector<std::jthread> rendering_threads;
     for (size_t i = 0; i < num_threads - 1; i++) {
         rendering_threads.emplace_back([&aggregator, &sampling_config, &scene, &image_buffers, i](){
+            tracy::SetThreadName("Aggregator");
             aggregator.sample_pixels(sampling_config, scene, image_buffers[i + 1]);
         });
     }
