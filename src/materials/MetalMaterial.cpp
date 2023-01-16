@@ -11,7 +11,10 @@ namespace PathRehnda {
 
     std::optional<Scatter> MetalMaterial::scatter(const Ray &ray_in, const HitResult &hit_result) const {
         Vec3 reflect_dir = reflect(unit_vector(ray_in.direction), hit_result.normal);
-        auto scattered_ray = Ray(hit_result.hit_location, reflect_dir + fuzz * Vec3::random_in_unit_sphere());
-        return Scatter(scattered_ray, albedo);
+        const Scatter scatter{
+            .scattered_ray = Ray(hit_result.hit_location, reflect_dir + fuzz * Vec3::random_in_unit_sphere(), ray_in.time),
+            .attenuation = albedo,
+        };
+        return scatter;
     }
 } // PathRehnda

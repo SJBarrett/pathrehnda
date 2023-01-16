@@ -6,9 +6,10 @@
 
 namespace PathRehnda {
 
-    Camera::Camera(Point3 look_from, Point3 look_at, Vec3 up, double vertical_fov_degrees, double aspect_ratio, double aperture, double focus_dist) {
+    Camera::Camera(Point3 look_from, Point3 look_at, Vec3 up, double vertical_fov_degrees, double aspect_ratio, double aperture,
+                   double focus_dist, double time_0, double time_1) : shutter_open_time(time_0), shutter_close_time(time_1) {
         auto theta = degrees_to_radians(vertical_fov_degrees);
-        auto h = tan(theta/2);
+        auto h = tan(theta / 2);
         auto viewport_height = 2.0 * h;
         auto viewport_width = aspect_ratio * viewport_height;
 
@@ -28,8 +29,9 @@ namespace PathRehnda {
         Vec3 rd = lens_radius * random_in_unit_disk();
         Vec3 offset = u * rd.x() + v * rd.y();
         return {
-            origin + offset,
-            lower_left_corner + s * horizontal + t * vertical - origin - offset
+                origin + offset,
+                lower_left_corner + s * horizontal + t * vertical - origin - offset,
+                random_double(shutter_open_time, shutter_close_time)
         };
     }
 

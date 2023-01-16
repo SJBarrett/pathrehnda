@@ -17,6 +17,10 @@ namespace PathRehnda {
             scatter_direction = hit_result.normal;
         }
 
-        return Scatter(Ray(hit_result.hit_location, scatter_direction), albedo);
+        const Scatter scatter{
+            .scattered_ray = Ray{hit_result.hit_location, scatter_direction, ray_in.time},
+            .attenuation = albedo,
+        };
+        return scatter;
     }
 } // PathRehnda

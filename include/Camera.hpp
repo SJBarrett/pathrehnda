@@ -10,7 +10,7 @@
 namespace PathRehnda {
     class Camera {
     public:
-        Camera(Point3 look_from, Point3 look_at, Vec3 up, double vertical_fov_degrees, double aspect_ratio, double aperture, double focus_dist);
+        Camera(Point3 look_from, Point3 look_at, Vec3 up, double vertical_fov_degrees, double aspect_ratio, double aperture, double focus_dist, double time_0 = 0, double time_1 = 0);
 
         [[nodiscard]]
         Ray get_ray(double s, double t) const;
@@ -28,5 +28,8 @@ namespace PathRehnda {
         Vec3 u; // camera x axis
         Vec3 v; // camera y axis
         double lens_radius;
+
+        double shutter_open_time;
+        double shutter_close_time;
     };
 }

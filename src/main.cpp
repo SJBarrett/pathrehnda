@@ -17,6 +17,7 @@
 #include "ImageWriter.hpp"
 #include "Sampler.hpp"
 #include "Aggregator.hpp"
+#include "hittable/MovingSphere.hpp"
 
 using namespace PathRehnda;
 namespace po = boost::program_options;
@@ -38,7 +39,8 @@ HittableList random_scene() {
                 if (choose_mat < 0.8) {
                     auto albedo = ColorRgb::random() * ColorRgb::random();
                     sphere_material = std::make_shared<LambertianMaterial>(albedo);
-                    world.add(std::make_shared<Sphere>(centre, 0.2, sphere_material));
+                    auto move_to_point = centre + Vec3(0, random_double(0, 0.5), 0);
+                    world.add(std::make_shared<MovingSphere>(centre, move_to_point, 0.0, 1.0, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     auto albedo = ColorRgb::random(0.5, 1);
                     auto fuzz = random_double(0, 0.5);
@@ -115,7 +117,7 @@ int main(int argc, char** argv) {
     const PathRehndaOptions options = parse_path_rehnda_options(argc, argv);
 
     // image properties
-    const double aspect_ratio = 3.0 / 2.0;
+    const double aspect_ratio = 16.0 / 9.0;
     const uint32_t image_width = options.image_width;
     const auto image_height = static_cast<uint32_t>(image_width / aspect_ratio);
     const uint32_t samples_per_pixel_per_thread = options.num_samples_per_thread;
@@ -131,7 +133,9 @@ int main(int argc, char** argv) {
     Vec3 up(0, 1, 0);
     auto dist_to_focus = 10.0;
     auto aperture = 0.1;
-    const Camera camera(look_from, look_at, up, 20.0, aspect_ratio, aperture, dist_to_focus);
+    const auto start_time = 0.0;
+    const auto end_time = 1.0;
+    const Camera camera(look_from, look_at, up, 20.0, aspect_ratio, aperture, dist_to_focus, start_time, end_time);
     const HittableList world = random_scene();
     const Sampler sampler(max_depth);
     const Aggregator aggregator;

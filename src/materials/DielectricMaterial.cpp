@@ -25,7 +25,7 @@ namespace PathRehnda {
         }
 
         Scatter scatter{
-                .scattered_ray = Ray(hit_result.hit_location, scatter_direction),
+                .scattered_ray = Ray(hit_result.hit_location, scatter_direction, ray_in.time),
                 .attenuation = attentuation,
         };
         return scatter;

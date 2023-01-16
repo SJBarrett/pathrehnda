@@ -16,12 +16,9 @@ namespace PathRehnda {
     public:
         Ray() {}
 
-        Ray(const Point3 &origin, const Vec3 &direction) : origin(origin), direction(direction) {};
+        Ray(const Point3 &origin, const Vec3 &direction, double time = 0.0) : origin(origin), direction(direction), time(time) {};
 
-        Point3 getOrigin() const { return origin; };
-
-        Vec3 getDirection() const { return direction; }
-
+        [[nodiscard]]
         Point3 at(double t) const {
             return origin + t * direction;
         }
@@ -29,5 +26,6 @@ namespace PathRehnda {
     public:
         Point3 origin;
         Vec3 direction;
+        double time;
     };
 }
