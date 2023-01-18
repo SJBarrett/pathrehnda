@@ -73,7 +73,6 @@ struct PathRehndaOptions {
     uint32_t image_width = 360;
     uint32_t num_samples_per_thread = 2;
     std::string output_file_name;
-    bool use_bvh = true;
 };
 
 PathRehndaOptions parse_path_rehnda_options(int argc, char** argv) {
@@ -83,8 +82,7 @@ PathRehndaOptions parse_path_rehnda_options(int argc, char** argv) {
             ("num_threads,n", po::value<uint32_t>()->default_value(std::jthread::hardware_concurrency()), "Number of threads")
             ("samples_per_thread,s", po::value<uint32_t>()->default_value(2), "Number of samplers per thread")
             ("image_width,w", po::value<uint32_t>()->default_value(480), "Number of pixels wide to render")
-            ("output_file,o", po::value<std::string>()->default_value("image.ppm"), "File to output to")
-            ("dont_use_bvh,a", "Disable BVH Acceleration structure");
+            ("output_file,o", po::value<std::string>()->default_value("image.ppm"), "File to output to");
     po::variables_map variables_map;
     po::store(po::parse_command_line(argc, argv, desc), variables_map);
     po::notify(variables_map);
@@ -107,15 +105,11 @@ PathRehndaOptions parse_path_rehnda_options(int argc, char** argv) {
     if (variables_map.count("output_file")) {
         options.output_file_name = variables_map["output_file"].as<std::string>();
     }
-    if (variables_map.count("dont_use_bvh")) {
-        options.use_bvh = false;
-    }
     spdlog::info("Options\n"
-                 "\t use_bvh = {}\n"
                  "\t num_threads = {}\n"
                  "\t samples_per_thread = {}\n"
                  "\t image_width = {}\n"
-                 "\t output_file = {}\n", options.use_bvh, options.num_threads, options.num_samples_per_thread, options.image_width, options.output_file_name);
+                 "\t output_file = {}\n", options.num_threads, options.num_samples_per_thread, options.image_width, options.output_file_name);
     return options;
 }
 
@@ -154,12 +148,9 @@ int main(int argc, char** argv) {
         .sampler = sampler,
         .samples_per_pixel = samples_per_pixel_per_thread
     };
-    const Scene scene = options.use_bvh ? Scene{
+    const Scene scene{
         .camera = camera,
         .world = world
-    } : Scene{
-        .camera = camera,
-        .world = hittable_list,
     };
 
     std::vector<ImageBuffer> image_buffers;
