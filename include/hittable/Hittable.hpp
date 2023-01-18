@@ -5,8 +5,10 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include "Vec3.hpp"
 #include "Ray.hpp"
+#include "Aabb.hpp"
 
 namespace PathRehnda {
     class Material;
@@ -14,7 +16,6 @@ namespace PathRehnda {
      * OPTIMISATION could improve performance by finding the closest hit first, and only then calculate the normal
      */
     struct HitResult {
-        bool did_hit = false;
         Point3 hit_location;
         Vec3 normal;
 
@@ -22,15 +23,14 @@ namespace PathRehnda {
 
         double t; // From P(t) = A + t * b formula
         bool front_face;
-
-        explicit operator bool() const {
-            return did_hit;
-        }
     };
 
     class Hittable {
     public:
         [[nodiscard]]
-        virtual HitResult hit(const Ray &ray, double t_min, double t_max) const = 0;
+        virtual std::optional<HitResult> hit(const Ray &ray, double t_min, double t_max) const = 0;
+
+        [[nodiscard]]
+        virtual std::optional<AABB> bounding_box(double time_0, double time_1) const = 0;
     };
 }

@@ -22,7 +22,7 @@ namespace PathRehnda {
 
         // setting t_min to 0.001 avoids shadow acne, where floating point approximation allow reflecting things at t = +/- 0.000001
         if (auto hit_result = world.hit(ray, 0.001, infinity)) {
-            if (auto scatter = hit_result.material->scatter(ray, hit_result)) {
+            if (auto scatter = hit_result->material->scatter(ray, hit_result.value())) {
                 return scatter->attenuation * sample_ray(scatter->scattered_ray, world, depth - 1);
             }
             return ColorRgb::zero();

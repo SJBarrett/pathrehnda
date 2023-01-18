@@ -20,14 +20,14 @@ namespace PathRehnda {
      *     x = (-h +/- sqrt(h*h - ac)) / a
      * This function will return the closest solution (smallest t value) if there is a hit, otherwise it is empty.
      */
-    HitResult Sphere::hit(const Ray &ray, double t_min, double t_max) const {
+    std::optional<HitResult> Sphere::hit(const Ray &ray, double t_min, double t_max) const {
         Vec3 oc = ray.origin - centre; // (A - C)
         auto a = ray.direction.length_squared(); // b . b from the above (which is equal to the vector length squared)
         auto half_b = dot(oc, ray.direction); // b . (A - C)
         auto c = oc.length_squared() - radius * radius; // (A - C) . (A - C) - r^2
         auto discriminant = half_b * half_b - a * c;
         if (discriminant < 0) {
-            return {.did_hit = false};
+            return {};
         }
         // find the nearest solution in the acceptable range
         auto sqrt_dis = sqrt(discriminant);
@@ -35,7 +35,7 @@ namespace PathRehnda {
         if (root < t_min || t_max < root) {
             root = (-half_b + sqrt_dis) / a;
             if (root < t_min || t_max < root)
-                return {.did_hit = false};
+                return {};
         }
 
         auto hit_location = ray.at(root);
@@ -47,13 +47,19 @@ namespace PathRehnda {
             front_face = false;
         }
 
-        return {
-                .did_hit = true,
+        return HitResult{
                 .hit_location = hit_location,
                 .normal = normal,
                 .material = material,
                 .t = root,
                 .front_face = front_face,
+        };
+    }
+
+    std::optional<AABB> Sphere::bounding_box(double time_0, double time_1) const {
+        return AABB{
+                centre - Vec3(radius, radius, radius),
+                centre + Vec3(radius, radius, radius)
         };
     }
 } // PathRehnda

@@ -6,7 +6,7 @@
 
 #include "Vec3.hpp"
 #include "Ray.hpp"
-#include "Hittable.hpp"
+#include "hittable/Hittable.hpp"
 #include "Camera.hpp"
 #include "ImageBuffer.hpp"
 

@@ -7,7 +7,7 @@
 #include <optional>
 
 #include "Ray.hpp"
-#include "Hittable.hpp"
+#include "hittable/Hittable.hpp"
 #include "Scatter.hpp"
 
 

@@ -3,7 +3,6 @@
 //
 
 #include <optional>
-#include <tracy/Tracy.hpp>
 #include "materials/LambertianMaterial.hpp"
 
 namespace PathRehnda {
@@ -12,7 +11,6 @@ namespace PathRehnda {
     }
 
     std::optional<Scatter> LambertianMaterial::scatter(const Ray &ray_in, const HitResult &hit_result) const {
-        ZoneScopedN("LambertianShader");
         auto scatter_direction = hit_result.normal + random_unit_vector();
 
         if (scatter_direction.near_zero()) {

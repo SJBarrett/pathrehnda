@@ -3,7 +3,6 @@
 #include <fstream>
 #include <thread>
 #include <boost/program_options.hpp>
-#include <tracy/Tracy.hpp>
 
 #include "Vec3.hpp"
 #include "RehndaMath.hpp"
@@ -19,6 +18,7 @@
 #include "Sampler.hpp"
 #include "Aggregator.hpp"
 #include "hittable/MovingSphere.hpp"
+#include "hittable/BvhNode.hpp"
 
 using namespace PathRehnda;
 namespace po = boost::program_options;
@@ -28,7 +28,7 @@ HittableList random_scene() {
 
     auto ground_material = std::make_shared<LambertianMaterial>(ColorRgb(0.5, 0.5, 0.5));
     world.add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, ground_material));
-    const int random_scene_size = 11;
+    const int random_scene_size = 40;
 
     for (int a = -random_scene_size; a < random_scene_size; a++) {
         for (int b = -random_scene_size; b < random_scene_size; b++) {
@@ -73,6 +73,7 @@ struct PathRehndaOptions {
     uint32_t image_width = 360;
     uint32_t num_samples_per_thread = 2;
     std::string output_file_name;
+    bool use_bvh = true;
 };
 
 PathRehndaOptions parse_path_rehnda_options(int argc, char** argv) {
@@ -82,40 +83,46 @@ PathRehndaOptions parse_path_rehnda_options(int argc, char** argv) {
             ("num_threads,n", po::value<uint32_t>()->default_value(std::jthread::hardware_concurrency()), "Number of threads")
             ("samples_per_thread,s", po::value<uint32_t>()->default_value(2), "Number of samplers per thread")
             ("image_width,w", po::value<uint32_t>()->default_value(480), "Number of pixels wide to render")
-            ("output_file,o", po::value<std::string>()->default_value("image.ppm"), "File to output to");
+            ("output_file,o", po::value<std::string>()->default_value("image.ppm"), "File to output to")
+            ("dont_use_bvh,a", "Disable BVH Acceleration structure");
     po::variables_map variables_map;
     po::store(po::parse_command_line(argc, argv, desc), variables_map);
     po::notify(variables_map);
 
     if (variables_map.count("help")) {
-        std::cerr << desc << '\n';
+        std::cout << desc << '\n';
         exit(0);
     }
 
     PathRehndaOptions options;
-    std::cerr << "Options\n";
     if (variables_map.count("num_threads")) {
         options.num_threads = variables_map["num_threads"].as<uint32_t>();
-        std::cerr << "num_threads = " << options.num_threads << std::endl;
     }
     if (variables_map.count("image_width")) {
         options.image_width = variables_map["image_width"].as<uint32_t>();
-        std::cerr << "image_width = " << options.image_width << std::endl;
     }
     if (variables_map.count("samples_per_thread")) {
         options.num_samples_per_thread = variables_map["samples_per_thread"].as<uint32_t>();
-        std::cerr << "samples_per_thread = " << options.num_samples_per_thread << std::endl;
     }
     if (variables_map.count("output_file")) {
         options.output_file_name = variables_map["output_file"].as<std::string>();
-        std::cerr << "output_file = " << options.output_file_name << std::endl;
     }
+    if (variables_map.count("dont_use_bvh")) {
+        options.use_bvh = false;
+    }
+    spdlog::info("Options\n"
+                 "\t use_bvh = {}\n"
+                 "\t num_threads = {}\n"
+                 "\t samples_per_thread = {}\n"
+                 "\t image_width = {}\n"
+                 "\t output_file = {}\n", options.use_bvh, options.num_threads, options.num_samples_per_thread, options.image_width, options.output_file_name);
     return options;
 }
 
 // up to https://raytracing.github.io/books/RayTracingInOneWeekend.html#dielectrics
 
 int main(int argc, char** argv) {
+    auto init_start = std::chrono::steady_clock::now();
     const PathRehndaOptions options = parse_path_rehnda_options(argc, argv);
 
     // image properties
@@ -125,7 +132,7 @@ int main(int argc, char** argv) {
     const uint32_t samples_per_pixel_per_thread = options.num_samples_per_thread;
     const int max_depth = 10;
     const unsigned int num_threads = options.num_threads;
-    std::cerr << "Using " << num_threads << " threads\n";
+    spdlog::info("Using {} threads", num_threads);
 
     // ppm image format header
 
@@ -138,41 +145,49 @@ int main(int argc, char** argv) {
     const auto start_time = 0.0;
     const auto end_time = 1.0;
     const Camera camera(look_from, look_at, up, 20.0, aspect_ratio, aperture, dist_to_focus, start_time, end_time);
-    const HittableList world = random_scene();
+    const HittableList hittable_list = random_scene();
+    spdlog::info("Scene size: {}", hittable_list.objects.size());
+    const BvhNode world = BvhNode(hittable_list, start_time, end_time, 0);
     const Sampler sampler(max_depth);
     const Aggregator aggregator;
     const SamplingConfig sampling_config{
         .sampler = sampler,
         .samples_per_pixel = samples_per_pixel_per_thread
     };
-    const Scene scene{
+    const Scene scene = options.use_bvh ? Scene{
         .camera = camera,
         .world = world
+    } : Scene{
+        .camera = camera,
+        .world = hittable_list,
     };
 
     std::vector<ImageBuffer> image_buffers;
     for (size_t i = 0; i < num_threads; i++) {
         image_buffers.emplace_back(image_width, image_height);
     }
+    auto init_end = std::chrono::steady_clock::now();
+    spdlog::info("Initialization time: {}", std::chrono::duration_cast<std::chrono::milliseconds>(init_end - init_start).count());
 
     // start parallel threads, leaving the main thread to run one instance itself
     std::vector<std::jthread> rendering_threads;
     for (size_t i = 0; i < num_threads - 1; i++) {
         rendering_threads.emplace_back([&aggregator, &sampling_config, &scene, &image_buffers, i](){
-            tracy::SetThreadName("Aggregator");
             aggregator.sample_pixels(sampling_config, scene, image_buffers[i + 1]);
         });
     }
 
     // run the main thread instance of sampling
+    auto start = std::chrono::steady_clock::now();
     aggregator.sample_pixels(sampling_config, scene, image_buffers[0], true);
-    std::cerr << "\nThread 1 done\n";
+    auto end = std::chrono::steady_clock::now();
+    spdlog::info("Time to sample 1 thread: {}", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
 
     // wait for all threads to complete
     for (auto &thread : rendering_threads) {
         thread.join();
     }
-    std::cerr << "\nAll threads done\n";
+    spdlog::info("All threads done");
 
 
     // sum the results of all sampling
@@ -184,6 +199,5 @@ int main(int argc, char** argv) {
     ImageWriter image_writer;
     std::ofstream output(options.output_file_name);
     image_writer.write_image_buffer_to_stream(output, image_buffers[0], samples_per_pixel_per_thread * num_threads);
-    std::cerr << "\nDone.\n";
     return 0;
 }

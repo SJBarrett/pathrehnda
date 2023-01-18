@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "Hittable.hpp"
+#include "hittable/Hittable.hpp"
 #include "ImageBuffer.hpp"
 #include "Sampler.hpp"
 
