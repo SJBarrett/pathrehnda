@@ -24,7 +24,16 @@
 using namespace PathRehnda;
 namespace po = boost::program_options;
 
-HittableList random_scene() {
+struct SceneConfig {
+    HittableList objects;
+    Point3 look_from;
+    Point3 look_at;
+    double vertical_fov = 40.0;
+    double aperture = 0.0;
+};
+
+
+SceneConfig random_scene() {
     HittableList world;
 
     auto checker = std::make_shared<CheckerTexture>(ColorRgb(0.2, 0.3, 0.1), ColorRgb(0.9, 0.9, 0.9));
@@ -67,7 +76,35 @@ HittableList random_scene() {
     auto material3 = std::make_shared<MetalMaterial>(ColorRgb(0.7, 0.6, 0.5), 0.0);
     world.add(make_shared<Sphere>(Point3(4, 1, 0), 1.0, material3));
 
-    return world;
+    return {
+        .objects = world,
+        .look_from = {13, 2, 3},
+        .look_at = {0, 0, 0},
+        .vertical_fov = 20.0,
+        .aperture = 0.1,
+    };
+}
+
+SceneConfig two_spheres_scene() {
+    HittableList objects;
+    auto checker = std::make_shared<CheckerTexture>(ColorRgb{0.2, 0.3, 0.1}, ColorRgb{0.9, 0.9, 0.9});
+    objects.add(std::make_shared<Sphere>(Point3(0, -10.1, 0), 10, std::make_shared<LambertianMaterial>(checker)));
+    objects.add(std::make_shared<Sphere>(Point3(0, 10.1, 0), 10, std::make_shared<LambertianMaterial>(checker)));
+    return {
+        .objects = objects,
+        .look_from = {13, 2, 3},
+        .look_at = {0, 0, 0},
+        .vertical_fov = 20.0,
+        .aperture = 0.1,
+    };
+}
+
+SceneConfig load_scene(const std::string& scene_name) {
+    if (scene_name == "two_spheres") {
+        return two_spheres_scene();
+    }
+    return random_scene();
+
 }
 
 struct PathRehndaOptions {
@@ -75,6 +112,7 @@ struct PathRehndaOptions {
     uint32_t image_width = 360;
     uint32_t num_samples_per_thread = 2;
     std::string output_file_name;
+    std::string scene_name;
 };
 
 PathRehndaOptions parse_path_rehnda_options(int argc, char** argv) {
@@ -84,7 +122,9 @@ PathRehndaOptions parse_path_rehnda_options(int argc, char** argv) {
             ("num_threads,n", po::value<uint32_t>()->default_value(std::jthread::hardware_concurrency()), "Number of threads")
             ("samples_per_thread,s", po::value<uint32_t>()->default_value(2), "Number of samplers per thread")
             ("image_width,w", po::value<uint32_t>()->default_value(480), "Number of pixels wide to render")
-            ("output_file,o", po::value<std::string>()->default_value("image.ppm"), "File to output to");
+            ("output_file,o", po::value<std::string>()->default_value("image.ppm"), "File to output to")
+            ("scene", po::value<std::string>()->default_value("random_spheres"), "Name of scene to use")
+            ;
     po::variables_map variables_map;
     po::store(po::parse_command_line(argc, argv, desc), variables_map);
     po::notify(variables_map);
@@ -107,11 +147,16 @@ PathRehndaOptions parse_path_rehnda_options(int argc, char** argv) {
     if (variables_map.count("output_file")) {
         options.output_file_name = variables_map["output_file"].as<std::string>();
     }
+    if (variables_map.count("scene")) {
+        options.scene_name = variables_map["scene"].as<std::string>();
+    }
     spdlog::info("Options\n"
                  "\t num_threads = {}\n"
                  "\t samples_per_thread = {}\n"
                  "\t image_width = {}\n"
-                 "\t output_file = {}\n", options.num_threads, options.num_samples_per_thread, options.image_width, options.output_file_name);
+                 "\t output_file = {}\n"
+                 "\t scene = {}\n"
+                 , options.num_threads, options.num_samples_per_thread, options.image_width, options.output_file_name, options.scene_name);
     return options;
 }
 
@@ -133,17 +178,14 @@ int main(int argc, char** argv) {
     // ppm image format header
 
     // world setup
-    Point3 look_from(13, 2, 3);
-    Point3 look_at(0, 0, 0);
     Vec3 up(0, 1, 0);
     auto dist_to_focus = 10.0;
-    auto aperture = 0.1;
     const auto start_time = 0.0;
     const auto end_time = 1.0;
-    const Camera camera(look_from, look_at, up, 20.0, aspect_ratio, aperture, dist_to_focus, start_time, end_time);
-    const HittableList hittable_list = random_scene();
-    spdlog::info("Scene size: {}", hittable_list.objects.size());
-    const BvhNode world = BvhNode(hittable_list, start_time, end_time, 0);
+    const SceneConfig scene_config = load_scene(options.scene_name);
+    const Camera camera(scene_config.look_from, scene_config.look_at, up, scene_config.vertical_fov, aspect_ratio, scene_config.aperture, dist_to_focus, start_time, end_time);
+    spdlog::info("Scene size: {}", scene_config.objects.objects.size());
+    const BvhNode world = BvhNode(scene_config.objects, start_time, end_time, 0);
     const Sampler sampler(max_depth);
     const Aggregator aggregator;
     const SamplingConfig sampling_config{
