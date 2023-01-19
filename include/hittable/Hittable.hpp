@@ -9,6 +9,7 @@
 #include "Vec3.hpp"
 #include "Ray.hpp"
 #include "Aabb.hpp"
+#include "texture/Texture.hpp"
 
 namespace PathRehnda {
     class Material;
@@ -18,11 +19,12 @@ namespace PathRehnda {
     struct HitResult {
         Point3 hit_location;
         Vec3 normal;
+        double t; // From P(t) = A + t * b formula
+
+        bool front_face;
 
         std::shared_ptr<Material> material;
-
-        double t; // From P(t) = A + t * b formula
-        bool front_face;
+        Uv uv;
     };
 
     class Hittable {

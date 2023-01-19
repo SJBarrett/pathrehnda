@@ -41,10 +41,14 @@ set(SOURCE_FILES
         src/Aggregator.cpp
         src/hittable/Sphere.cpp
         src/hittable/HittableList.cpp
+        src/hittable/MovingSphere.cpp
+        src/hittable/Aabb.cpp
+        src/hittable/BvhNode.cpp
         src/materials/LambertianMaterial.cpp
         src/materials/MetalMaterial.cpp
         src/materials/DielectricMaterial.cpp
-        src/hittable/MovingSphere.cpp include/hittable/MovingSphere.hpp src/hittable/Aabb.cpp include/hittable/Aabb.hpp include/hittable/BvhNode.cpp include/hittable/BvhNode.hpp)
+        src/texture/SolidColour.cpp
+        src/texture/CheckerTexture.cpp)
 # Enable tracy profiler
 add_compile_definitions(TRACY_ENABLE) # TODO enable this only for some builds
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

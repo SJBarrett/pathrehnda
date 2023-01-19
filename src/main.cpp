@@ -19,6 +19,7 @@
 #include "Aggregator.hpp"
 #include "hittable/MovingSphere.hpp"
 #include "hittable/BvhNode.hpp"
+#include "texture/CheckerTexture.hpp"
 
 using namespace PathRehnda;
 namespace po = boost::program_options;
@@ -26,9 +27,10 @@ namespace po = boost::program_options;
 HittableList random_scene() {
     HittableList world;
 
-    auto ground_material = std::make_shared<LambertianMaterial>(ColorRgb(0.5, 0.5, 0.5));
+    auto checker = std::make_shared<CheckerTexture>(ColorRgb(0.2, 0.3, 0.1), ColorRgb(0.9, 0.9, 0.9));
+    auto ground_material = std::make_shared<LambertianMaterial>(checker);
     world.add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, ground_material));
-    const int random_scene_size = 40;
+    const int random_scene_size = 11;
 
     for (int a = -random_scene_size; a < random_scene_size; a++) {
         for (int b = -random_scene_size; b < random_scene_size; b++) {

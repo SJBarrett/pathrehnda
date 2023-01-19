@@ -39,7 +39,8 @@ namespace PathRehnda {
         }
 
         auto hit_location = ray.at(root);
-        Vec3 normal = (hit_location - centre) / radius;
+        Vec3 outward_normal = (hit_location - centre) / radius;
+        Vec3 normal = outward_normal;
         bool front_face = true;
         // if the dot product is positive, then the normal is not against the ray, so the hit is inside
         if (dot(ray.direction, normal) > 0.0) {
@@ -50,9 +51,10 @@ namespace PathRehnda {
         return HitResult{
                 .hit_location = hit_location,
                 .normal = normal,
-                .material = material,
                 .t = root,
                 .front_face = front_face,
+                .material = material,
+                .uv = get_unit_sphere_uv(outward_normal),
         };
     }
 
@@ -60,6 +62,15 @@ namespace PathRehnda {
         return AABB{
                 centre - Vec3(radius, radius, radius),
                 centre + Vec3(radius, radius, radius)
+        };
+    }
+
+    Uv Sphere::get_unit_sphere_uv(const Point3 &surface_point) {
+        auto theta = acos(-surface_point.y());
+        auto phi = atan2(-surface_point.z(), surface_point.x()) + pi;
+        return {
+            .u = phi / (2 * pi),
+            .v = theta / pi,
         };
     }
 } // PathRehnda

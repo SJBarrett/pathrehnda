@@ -50,9 +50,9 @@ namespace PathRehnda {
         return HitResult{
                 .hit_location = hit_location,
                 .normal = normal,
-                .material = material,
                 .t = root,
                 .front_face = front_face,
+                .material = material,
         };
     }
 

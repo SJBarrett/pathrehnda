@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include <spdlog/spdlog.h>
-#include "BvhNode.hpp"
+#include "hittable/BvhNode.hpp"
 
 namespace PathRehnda {
     BvhNode::BvhNode(const HittableList &list, double time_0, double time_1, size_t depth) : BvhNode(list.objects, 0, list.objects.size(), time_0, time_1, depth) {
