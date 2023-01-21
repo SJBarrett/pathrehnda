@@ -20,6 +20,7 @@
 #include "hittable/MovingSphere.hpp"
 #include "hittable/BvhNode.hpp"
 #include "texture/CheckerTexture.hpp"
+#include "texture/NoiseTexture.hpp"
 
 using namespace PathRehnda;
 namespace po = boost::program_options;
@@ -87,9 +88,9 @@ SceneConfig random_scene() {
 
 SceneConfig two_spheres_scene() {
     HittableList objects;
-    auto checker = std::make_shared<CheckerTexture>(ColorRgb{0.2, 0.3, 0.1}, ColorRgb{0.9, 0.9, 0.9});
-    objects.add(std::make_shared<Sphere>(Point3(0, -10.1, 0), 10, std::make_shared<LambertianMaterial>(checker)));
-    objects.add(std::make_shared<Sphere>(Point3(0, 10.1, 0), 10, std::make_shared<LambertianMaterial>(checker)));
+    auto checker = std::make_shared<NoiseTexture>(4);
+    objects.add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, std::make_shared<LambertianMaterial>(checker)));
+    objects.add(std::make_shared<Sphere>(Point3(0, 2, 0), 2, std::make_shared<LambertianMaterial>(checker)));
     return {
         .objects = objects,
         .look_from = {13, 2, 3},

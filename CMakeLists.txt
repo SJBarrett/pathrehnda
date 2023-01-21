@@ -39,6 +39,7 @@ set(SOURCE_FILES
         src/ImageWriter.cpp
         src/Sampler.cpp
         src/Aggregator.cpp
+        src/Perlin.cpp
         src/hittable/Sphere.cpp
         src/hittable/HittableList.cpp
         src/hittable/MovingSphere.cpp
@@ -48,7 +49,9 @@ set(SOURCE_FILES
         src/materials/MetalMaterial.cpp
         src/materials/DielectricMaterial.cpp
         src/texture/SolidColour.cpp
-        src/texture/CheckerTexture.cpp)
+        src/texture/CheckerTexture.cpp
+        src/texture/NoiseTexture.cpp
+        )
 # Enable tracy profiler
 add_compile_definitions(TRACY_ENABLE) # TODO enable this only for some builds
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
