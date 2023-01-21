@@ -30,6 +30,7 @@ conan_cmake_run(REQUIRES
         magic_enum/0.8.0
         namedtype/20190324
         boost/1.81.0
+        stb/cci.20210910
         BASIC_SETUP BUILD missing BUILD_TYPE Debug)
 
 set(SOURCE_FILES
@@ -51,6 +52,7 @@ set(SOURCE_FILES
         src/texture/SolidColour.cpp
         src/texture/CheckerTexture.cpp
         src/texture/NoiseTexture.cpp
+        src/texture/ImageTexture.cpp
         )
 # Enable tracy profiler
 add_compile_definitions(TRACY_ENABLE) # TODO enable this only for some builds

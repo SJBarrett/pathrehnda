@@ -21,6 +21,7 @@
 #include "hittable/BvhNode.hpp"
 #include "texture/CheckerTexture.hpp"
 #include "texture/NoiseTexture.hpp"
+#include "texture/ImageTexture.hpp"
 
 using namespace PathRehnda;
 namespace po = boost::program_options;
@@ -100,9 +101,26 @@ SceneConfig two_spheres_scene() {
     };
 }
 
+SceneConfig earth_scene() {
+    auto earth_texture = std::make_shared<ImageTexture>("resources/earthmap.jpg");
+    auto earth_surface = std::make_shared<LambertianMaterial>(earth_texture);
+    auto globe = std::make_shared<Sphere>(Point3{0, 0, 0}, 2, earth_surface);
+
+    return SceneConfig{
+        .objects = HittableList(globe),
+        .look_from = {13, 2, 3},
+        .look_at = {0, 0, 0},
+        .vertical_fov = 20.0,
+        .aperture = 0.1,
+    };
+}
+
 SceneConfig load_scene(const std::string& scene_name) {
     if (scene_name == "two_spheres") {
         return two_spheres_scene();
+    }
+    if (scene_name == "earth") {
+        return earth_scene();
     }
     return random_scene();
 
